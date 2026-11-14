@@ -1,0 +1,92 @@
+# LeadX build plan
+
+Each step ships as its own branch and pull request, reviewed before the next one starts.
+
+## Step 1: Scaffold ✅
+
+- [x] Next.js 16 + TypeScript strict + Tailwind v4
+- [x] shadcn/ui setup and base components (button, card, input, label, badge, separator, skeleton)
+- [x] Folder structure, route groups, placeholder pages
+- [x] Validated environment variables and `.env.example`
+- [x] Provider interfaces with mock adapters (people, email, research)
+- [x] Prompt definition type, Anthropic client stub, Inngest endpoint
+- [x] Vitest, Prettier, ESLint, CI workflow
+- [x] README and this file
+
+## Step 2: Database and auth
+
+- [ ] Schema proposal (review before migrations)
+- [ ] Migrations with Row Level Security on every table
+- [ ] Google sign-in
+- [ ] Protected routes
+
+## Step 3: App shell
+
+- [ ] Responsive navigation
+- [ ] Today page
+- [ ] Empty states
+
+## Step 4: Onboarding
+
+- [ ] Resume upload and AI parsing into an editable profile
+- [ ] "Your story" helper and positioning statement
+- [ ] Tone picker and writing sample
+
+## Step 5: Targets
+
+- [ ] Create from job posting (AI extraction)
+- [ ] Create from company name or domain
+- [ ] Target list with progress
+
+## Step 6: People discovery
+
+- [ ] Apollo adapter behind the people provider interface
+- [ ] AI ranking with one-line reasons
+- [ ] Connection angles
+- [ ] Manual add
+
+## Step 7: Enrichment
+
+- [ ] Email finder waterfall (Hunter, Apollo)
+- [ ] Email verification with valid / risky handling
+- [ ] Research briefs (Tavily or Exa) with caching
+- [ ] API usage tracking per user
+
+## Step 8: AI writer
+
+- [ ] Three variants with different angles
+- [ ] Message types: cold email, referral request, LinkedIn note, LinkedIn DM, follow-up
+- [ ] Inline edits
+- [ ] Quality checker and length rules
+
+## Step 9: Gmail sending
+
+- [ ] Gmail OAuth with encrypted tokens
+- [ ] Send from the user's address after review
+- [ ] Daily cap enforced on the server, with tests
+- [ ] Send logging
+
+## Step 10: Sequences and replies
+
+- [ ] Follow-ups on day 3 and day 7, stopping on reply
+- [ ] Smart send time and randomised spacing
+- [ ] Reply sync and inbox view
+- [ ] AI reply classification and suggested responses
+- [ ] Opt-out and "never email again", with tests
+
+## Step 11: Pipeline and insights
+
+- [ ] Kanban board per person
+- [ ] Dashboard
+- [ ] CSV export
+
+## Step 12: Polish and launch
+
+- [ ] Tests for critical logic
+- [ ] Error and empty states pass
+- [ ] Deploy to Vercel
+
+## Open items
+
+- Gmail read access is a Google "restricted" scope: public launch needs Google verification and
+  an annual security assessment. Until then the app is limited to 100 test users.
