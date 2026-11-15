@@ -2,13 +2,19 @@ import "server-only";
 
 import { getEnv } from "@/lib/env";
 
+import { ExaResearchProvider } from "./exa";
 import { MockResearchProvider } from "./mock";
+import { TavilyResearchProvider } from "./tavily";
 import type { ResearchProvider } from "./types";
 
 export * from "./types";
 
-/** Real adapters (Tavily or Exa, chosen by RESEARCH_PROVIDER) are registered here in Step 7. */
+/** Tavily or Exa (chosen by RESEARCH_PROVIDER) when its key is set; otherwise sample results. */
 export function getResearchProvider(): ResearchProvider {
-  if (getEnv().USE_MOCK_PROVIDERS) return new MockResearchProvider();
-  throw new Error("No real research provider is implemented yet (Step 7)");
+  const { RESEARCH_PROVIDER, TAVILY_API_KEY, EXA_API_KEY } = getEnv();
+  if (RESEARCH_PROVIDER === "exa" && EXA_API_KEY)
+    return new ExaResearchProvider(EXA_API_KEY);
+  if (RESEARCH_PROVIDER === "tavily" && TAVILY_API_KEY)
+    return new TavilyResearchProvider(TAVILY_API_KEY);
+  return new MockResearchProvider();
 }

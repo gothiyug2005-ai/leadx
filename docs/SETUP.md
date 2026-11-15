@@ -67,7 +67,29 @@ People Search itself uses no Apollo credits. It returns names with part of the
 surname hidden and no email; LeadX fills those in during enrichment (next
 step). Results are cached for 7 days to stay well within Apollo's hourly limit.
 
-## 5. Optional services
+## 5. Hunter (finding and verifying emails)
+
+Without a key, LeadX shows sample addresses.
+
+1. Sign up at https://hunter.io and open **API** in your account menu.
+2. Copy the API key and add it as `HUNTER_API_KEY`.
+
+LeadX tries Hunter first, then Apollo (which uses Apollo credits and can also
+reveal surnames that Apollo search hides). Every address is verified with
+Hunter: "valid" can be emailed, "risky" (catch-all domains, personal webmail)
+needs you to click **Use anyway**, and "invalid" is never emailed. Results are
+cached for 30 days.
+
+## 6. Tavily (company research)
+
+1. Sign up at https://tavily.com and copy your API key.
+2. Add it as `TAVILY_API_KEY` (leave `RESEARCH_PROVIDER=tavily`).
+
+To use Exa instead, set `RESEARCH_PROVIDER=exa` and `EXA_API_KEY`. Company
+research is shared by everyone you contact at that company and refreshed every
+14 days.
+
+## 7. Optional services
 
 Each one replaces sample data with the real thing. Details are added to this
 guide as each feature is built.

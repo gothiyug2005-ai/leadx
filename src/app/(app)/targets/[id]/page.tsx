@@ -13,6 +13,7 @@ import { Suspense } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { AddPersonDialog } from "@/components/people/add-person-dialog";
+import { EnrichTopPicksButton } from "@/components/people/enrich-top-picks-button";
 import { FindPeopleButton } from "@/components/people/find-people-button";
 import { PersonCard } from "@/components/people/person-card";
 import { TargetActions } from "@/components/targets/target-actions";
@@ -213,6 +214,13 @@ function People({ target }: { target: TargetDetail }) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <EnrichTopPicksButton
+            targetId={target.id}
+            pendingCount={
+              recommended.filter((person) => person.email_status !== "valid")
+                .length
+            }
+          />
           <AddPersonDialog targetId={target.id} />
           {!isPersonTarget ? (
             <FindPeopleButton targetId={target.id} hasPeople={hasPeople} />

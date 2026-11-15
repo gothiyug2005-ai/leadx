@@ -4,6 +4,15 @@ import { getEmailFinders, getEmailVerifier } from "@/lib/providers/email";
 import { getPeopleProvider } from "@/lib/providers/people";
 import { getResearchProvider } from "@/lib/providers/research";
 
+const emailInput = {
+  firstName: "Priya",
+  lastName: "Raman",
+  companyDomain: "Acme.example",
+  companyName: "Acme",
+  providerPersonId: null,
+  source: "mock",
+};
+
 describe("sample providers (no keys configured)", () => {
   it("returns the same labelled sample people for the same company", async () => {
     const provider = getPeopleProvider();
@@ -36,21 +45,19 @@ describe("sample providers (no keys configured)", () => {
     );
   });
 
-  it("finds and verifies an email through the waterfall", async () => {
-    const [finder] = getEmailFinders();
-    const found = await finder?.findEmail({
-      firstName: "Priya",
-      lastName: "Raman",
-      companyDomain: "Acme.example",
-    });
+  it("finds and verifies a sample email", async () => {
+    const finders = getEmailFinders();
+    expect(finders.map((finder) => finder.name)).toEqual(["mock"]);
+    const found = await finders[0]?.findEmail(emailInput);
     expect(found?.email).toBe("priya.raman@acme.example");
 
     const verifier = getEmailVerifier();
-    expect((await verifier.verifyEmail(found!.email)).status).toBe("valid");
-    expect((await verifier.verifyEmail("risky@acme.example")).status).toBe(
+    expect(verifier?.name).toBe("mock");
+    expect((await verifier!.verifyEmail(found!.email)).status).toBe("valid");
+    expect((await verifier!.verifyEmail("risky@acme.example")).status).toBe(
       "risky",
     );
-    expect((await verifier.verifyEmail("invalid@acme.example")).status).toBe(
+    expect((await verifier!.verifyEmail("invalid@acme.example")).status).toBe(
       "invalid",
     );
   });
