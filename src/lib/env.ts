@@ -39,6 +39,8 @@ const envSchema = z
     // AI
     ANTHROPIC_API_KEY: optionalKey,
     ANTHROPIC_MODEL: z.string().default("claude-opus-5-5"),
+    // Cost guard: real AI calls allowed per user in any 24 hours.
+    AI_DAILY_CALL_LIMIT: z.coerce.number().int().min(1).default(300),
 
     // People and email data
     APOLLO_API_KEY: optionalKey,

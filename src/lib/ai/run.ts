@@ -3,7 +3,8 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 
-import { recordUsage } from "@/lib/usage/record";
+import { getEnv } from "@/lib/env";
+import { recentUsageCount, recordUsage } from "@/lib/usage/record";
 
 import { getAnthropic, getDefaultModel } from "./client";
 import { AiError } from "./errors";
@@ -53,6 +54,16 @@ export async function runPrompt<TInput, TOutput>(
       promptId: prompt.id,
       promptVersion: prompt.version,
     };
+  }
+
+  // Cost guard: only real calls count, and only when they would hit Claude.
+  if (options.client === undefined) {
+    const used = await recentUsageCount(
+      options.userId,
+      "anthropic",
+      24 * 60 * 60 * 1000,
+    );
+    if (used >= getEnv().AI_DAILY_CALL_LIMIT) throw new AiError("daily_limit");
   }
 
   const model = options.model ?? getDefaultModel();

@@ -98,9 +98,12 @@ Each step ships as its own branch and pull request, reviewed before the next one
 
 ## Step 12: Polish and launch
 
-- [ ] Tests for critical logic
-- [ ] Error and empty states pass
-- [ ] Deploy to Vercel
+- [x] Tests for critical logic (send gate, sequences and RLS now also run in CI against a real
+      database)
+- [x] Error and empty states pass (phone and desktop sweep of every screen)
+- [x] Security headers and a per-user daily AI allowance
+- [x] Deploy guide: [docs/DEPLOY.md](./docs/DEPLOY.md)
+- [ ] Deploy to Vercel (needs your accounts; follow the guide)
 
 ## Open items
 

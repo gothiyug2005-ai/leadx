@@ -46,7 +46,7 @@ export default function LandingPage() {
         <div>
           <Button asChild size="lg">
             <Link href="/today">
-              Open the app <ArrowRight />
+              Get started <ArrowRight />
             </Link>
           </Button>
         </div>

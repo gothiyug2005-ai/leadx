@@ -7,6 +7,7 @@ on:
 
 jobs:
   check:
+    name: Typecheck, lint, unit tests, build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,3 +21,32 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
+
+  database:
+    # Runs the Row Level Security, send-gate (daily cap, opt-outs, races) and
+    # sequence/reply tests against a real local Supabase started from the migrations.
+    name: Database security and sending rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Start local Supabase
+        run: pnpm exec supabase start -x studio,imgproxy,logflare,vector,supavisor,mailpit,realtime,edge-runtime,postgres-meta
+      - name: Point the tests at it
+        run: |
+          pnpm exec supabase status -o json > status.json
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$(jq -r .API_URL status.json)"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(jq -r .PUBLISHABLE_KEY status.json)"
+            echo "SUPABASE_SECRET_KEY=$(jq -r .SECRET_KEY status.json)"
+            echo "TEST_DATABASE_URL=$(jq -r .DB_URL status.json)"
+          } > .env.local
+      - run: pnpm vitest run tests/db
+      - name: Stop Supabase
+        if: always()
+        run: pnpm exec supabase stop --no-backup

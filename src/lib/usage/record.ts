@@ -42,3 +42,27 @@ export async function recordUsage(record: UsageRecord): Promise<void> {
     console.error("recordUsage failed", error);
   }
 }
+
+/**
+ * How many real (non-sample) calls this user made to a provider recently.
+ * Returns 0 when usage cannot be read, so a usage outage never blocks work.
+ */
+export async function recentUsageCount(
+  userId: string,
+  provider: string,
+  sinceMs: number,
+): Promise<number> {
+  if (!getEnv().SUPABASE_SECRET_KEY) return 0;
+  try {
+    const { count } = await createServiceClient()
+      .from("api_usage")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("provider", provider)
+      .eq("is_mock", false)
+      .gte("created_at", new Date(Date.now() - sinceMs).toISOString());
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
+}
