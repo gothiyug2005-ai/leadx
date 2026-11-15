@@ -8,6 +8,7 @@ import { removeConnection } from "@/lib/gmail/connection";
 import { revokeToken } from "@/lib/gmail/oauth";
 import { getMailProvider } from "@/lib/providers/mail";
 import { SendError, deliverMessage, returnToDraft } from "@/lib/sending/send";
+import { startSequence } from "@/lib/sequences/start";
 import { createClient } from "@/lib/supabase/server";
 import { uuidSchema } from "@/lib/validation/target";
 import { contextSourceText } from "@/lib/writer/context";
@@ -21,7 +22,11 @@ import { fail, failFrom, ok, type ActionResult } from "./result";
 const finalSchema = z.object({
   subject: z.string().trim().min(1, "Add a subject line.").max(200),
   body: z.string().trim().min(1, "The message is empty.").max(5000),
+  /** First emails only: schedule two follow-ups that stop on any reply. */
+  followUps: z.boolean().optional().default(false),
 });
+
+const FIRST_EMAIL_TYPES = new Set(["cold_email", "referral_request"]);
 
 /**
  * The user has reviewed this email and clicked Send. Nothing is ever sent
@@ -31,7 +36,9 @@ const finalSchema = z.object({
 export async function approveAndSend(
   messageId: unknown,
   values: unknown,
-): Promise<ActionResult<{ simulated: boolean; to: string }>> {
+): Promise<
+  ActionResult<{ simulated: boolean; to: string; followUpsScheduled: number }>
+> {
   let id: string | null = null;
   try {
     const user = await requireUser();
@@ -103,8 +110,24 @@ export async function approveAndSend(
     if (error) return fail("Could not queue this message. Please try again.");
 
     const result = await deliverMessage(user.id, id, { provider });
+
+    let followUpsScheduled = 0;
+    if (FIRST_EMAIL_TYPES.has(type)) {
+      try {
+        followUpsScheduled = (
+          await startSequence(user.id, id, { followUps: final.followUps })
+        ).scheduled;
+      } catch (error) {
+        // The email went out; a follow-up problem must not look like a failed send.
+        console.error("Starting the sequence failed", error);
+      }
+    }
     refresh();
-    return ok({ simulated: result.simulated, to: result.to });
+    return ok({
+      simulated: result.simulated,
+      to: result.to,
+      followUpsScheduled,
+    });
   } catch (error) {
     if (error instanceof SendError) {
       // Refused by the gate: hand it back as a draft. A failed delivery stays "failed" so it can be retried.

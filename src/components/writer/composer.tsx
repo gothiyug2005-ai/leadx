@@ -532,6 +532,9 @@ export function Composer(props: ComposerProps) {
               ) : (
                 <SendDialog
                   messageId={active.id}
+                  canFollowUp={
+                    type === "cold_email" || type === "referral_request"
+                  }
                   subject={current.subject}
                   body={current.body}
                   issues={quality?.issues ?? []}

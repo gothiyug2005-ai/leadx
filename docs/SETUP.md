@@ -123,7 +123,32 @@ How sending works: nothing is sent until you press Send in the review window;
 the database checks your daily limit, your do-not-email list and the address
 first; and every send is logged in `send_events`.
 
-## 8. Optional services
+## 8. Background jobs (follow-ups and reply checks)
+
+Two jobs keep sequences moving: one sends follow-ups that are due (every 5
+minutes), one checks Gmail for replies (every 10 minutes). Without either set
+up, nothing is sent automatically: follow-ups stay scheduled and replies are
+only picked up when you press **Check for replies** in the Inbox.
+
+**Option A: Inngest (recommended)**
+
+1. Sign up at https://www.inngest.com and create an app.
+2. Easiest on Vercel: install the Inngest integration from the Vercel
+   marketplace, which adds `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` for you.
+   Otherwise copy both keys from the Inngest dashboard into your environment.
+3. Redeploy. Inngest finds the jobs at `/api/inngest` and runs them on schedule.
+
+For local development, run `npx inngest-cli@latest dev` next to `pnpm dev`.
+
+**Option B: a plain cron**
+
+1. Generate a secret with `openssl rand -hex 32` and set it as `CRON_SECRET`.
+2. Have your scheduler call `GET /api/cron/run` with the header
+   `Authorization: Bearer <CRON_SECRET>` every 5 to 10 minutes. (Vercel Cron on
+   the free plan runs at most once a day, which is too slow for follow-ups; use
+   Inngest or an external cron service there.)
+
+## 9. Optional services
 
 Each one replaces sample data with the real thing. Details are added to this
 guide as each feature is built.

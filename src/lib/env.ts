@@ -57,6 +57,8 @@ const envSchema = z
     // Background jobs
     INNGEST_EVENT_KEY: optionalKey,
     INNGEST_SIGNING_KEY: optionalKey,
+    // Protects /api/cron/run for hosts that use a plain cron instead of Inngest.
+    CRON_SECRET: optionalKey,
 
     // Sending limits. The database enforces the same hard maximum of 40.
     DAILY_SEND_CAP_DEFAULT: z.coerce.number().int().min(1).max(40).default(20),

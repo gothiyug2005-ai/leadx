@@ -6,6 +6,7 @@ import {
   getMailProvider,
   type MailProvider,
 } from "@/lib/providers/mail";
+import { recordOutbound } from "@/lib/sequences/outbound";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 
 export class SendError extends Error {
@@ -161,9 +162,24 @@ export async function deliverMessage(
 
     const { data: person } = await service
       .from("people")
-      .select("stage")
+      .select("stage, is_sample")
       .eq("id", message.person_id)
       .maybeSingle();
+
+    // Keep the conversation thread in step, so the inbox and reply sync can find it.
+    await recordOutbound(service, {
+      userId,
+      personId: message.person_id,
+      messageId,
+      sequenceId: message.sequence_id,
+      gmailThreadId: sent.threadId,
+      gmailMessageId: sent.messageId,
+      subject: message.subject,
+      body: message.body,
+      to: claim.to_email,
+      from: provider.fromAddress,
+      isSample: Boolean(person?.is_sample),
+    });
     if (person?.stage === "to_contact") {
       await service
         .from("people")

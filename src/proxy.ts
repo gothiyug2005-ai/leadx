@@ -13,6 +13,6 @@ export const config = {
      *   - Next.js internals and static assets
      *   - the Inngest endpoint (called by Inngest, not by a browser)
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/inngest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/inngest|api/cron|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt)$).*)",
   ],
 };
