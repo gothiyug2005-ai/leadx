@@ -1,6 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { cache } from "react";
 
 import { getEnv } from "@/lib/env";
@@ -20,6 +21,8 @@ export type Profile = Tables<"profiles">;
  * Memoised per request, so calling it from several components is free.
  */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
+  // Session checks compare token expiry with the clock, so they must run per request.
+  await connection();
   if (!getSupabaseConfig()) return null;
 
   const supabase = await createClient();
