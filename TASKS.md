@@ -52,12 +52,13 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Connection angles (shared school, past company, city, skills), detected by rules plus AI
 - [x] Manual add, top-pick toggle, "never email again", remove; person page
 
-## Step 7: Enrichment
+## Step 7: Enrichment ✅
 
-- [ ] Email finder waterfall (Hunter, Apollo)
-- [ ] Email verification with valid / risky handling
-- [ ] Research briefs (Tavily or Exa) with caching
-- [ ] API usage tracking per user
+- [x] Email finder waterfall (Hunter, then Apollo enrichment, which also reveals hidden surnames)
+- [x] Hunter verification: valid / risky (accept-all, webmail) / invalid; risky needs "Use anyway"
+- [x] Company brief (shared, 14 days) and person brief from Tavily or Exa search, with source-checked links
+- [x] Provider results cached (failed lookups never cached); every call recorded in api_usage
+- [x] Contact card, research card, "Find emails for top picks"
 
 ## Step 8: AI writer
 

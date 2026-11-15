@@ -44,6 +44,8 @@ export async function withProviderCache<T>(
     operation: string;
     input: unknown;
     ttlMs: number;
+    /** Return false to skip caching a result, e.g. one produced while a provider was failing. */
+    shouldCache?: (value: T) => boolean;
   },
   load: () => Promise<T>,
 ): Promise<{ value: T; hit: boolean }> {
@@ -68,6 +70,8 @@ export async function withProviderCache<T>(
   }
 
   const value = await load();
+  if (options.shouldCache && !options.shouldCache(value))
+    return { value, hit: false };
   try {
     await supabase.from("provider_cache").upsert({
       cache_key: key,

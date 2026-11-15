@@ -1,7 +1,9 @@
 import {
+  BadgeCheck,
   Ban,
   Briefcase,
   GraduationCap,
+  Mail,
   MapPin,
   PenLine,
   Sparkles,
@@ -38,6 +40,8 @@ export interface PersonCardData {
   do_not_contact: boolean;
   stage: string;
   is_sample: boolean;
+  email?: string | null;
+  email_status?: string;
 }
 
 export function AngleChips({ angles }: { angles: ConnectionAngle[] }) {
@@ -97,6 +101,22 @@ export function PersonCard({ person }: { person: PersonCardData }) {
         </div>
         {person.title ? (
           <span className="text-muted-foreground text-sm">{person.title}</span>
+        ) : null}
+        {person.email ? (
+          <span className="text-muted-foreground flex items-center gap-1 text-xs">
+            <Mail className="size-3" aria-hidden />
+            {person.email}
+            {person.email_status === "valid" ? (
+              <BadgeCheck
+                className="size-3.5 text-emerald-600 dark:text-emerald-400"
+                aria-label="verified"
+              />
+            ) : (
+              <span>
+                ({person.email_status === "risky" ? "risky" : "not verified"})
+              </span>
+            )}
+          </span>
         ) : null}
         {person.relevance_reason ? (
           <p className="text-sm">{person.relevance_reason}</p>

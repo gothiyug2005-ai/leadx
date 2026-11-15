@@ -12,7 +12,7 @@ export const getPerson = cache(async (id: string) => {
   const { data } = await supabase
     .from("people")
     .select(
-      "id, full_name, first_name, last_name, title, location, linkedin_url, role_type, relevance_score, relevance_reason, connection_angles, is_recommended, do_not_contact, stage, email, email_status, email_source, notes, source, is_sample, target:targets(id, role_title, team, kind), company:companies(id, name, domain)",
+      "id, full_name, first_name, last_name, title, location, linkedin_url, role_type, relevance_score, relevance_reason, connection_angles, is_recommended, do_not_contact, stage, email, email_status, email_source, email_confidence, email_risk_accepted_at, enrichment_status, enrichment_error, notes, company_id, source, is_sample, target:targets(id, role_title, team, kind), company:companies(id, name, domain)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -20,3 +20,20 @@ export const getPerson = cache(async (id: string) => {
 });
 
 export type PersonDetail = NonNullable<Awaited<ReturnType<typeof getPerson>>>;
+
+export const getPersonResearch = cache(
+  async (personId: string, companyId: string) => {
+    await requireUser();
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("research_briefs")
+      .select("scope, content, sources, is_sample, created_at, expires_at")
+      .or(
+        `person_id.eq.${personId},and(company_id.eq.${companyId},scope.eq.company)`,
+      );
+    return {
+      company: data?.find((row) => row.scope === "company") ?? null,
+      person: data?.find((row) => row.scope === "person") ?? null,
+    };
+  },
+);
