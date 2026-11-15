@@ -3,13 +3,18 @@ import { z } from "zod";
 /**
  * Server-side environment variables, validated once on first use.
  *
- * Keys for real providers are only required when USE_MOCK_PROVIDERS=false,
- * so the app runs end to end without any accounts during development.
+ * Mock rule: each external provider (AI, people, email, research, mail) uses
+ * its real adapter when its key is present. When a key is missing the provider
+ * falls back to a mock, unless USE_MOCK_PROVIDERS=false, in which case a
+ * missing key is a configuration error. This keeps development unblocked and
+ * lets real providers be switched on one at a time.
  */
-const booleanFlag = z
-  .enum(["true", "false"])
-  .default("true")
-  .transform((value) => value === "true");
+function booleanFlag(defaultValue: "true" | "false") {
+  return z
+    .enum(["true", "false"])
+    .default(defaultValue)
+    .transform((value) => value === "true");
+}
 
 const optionalKey = z
   .string()
@@ -21,36 +26,39 @@ const optionalKey = z
 const envSchema = z
   .object({
     NEXT_PUBLIC_APP_URL: z.url().default("http://localhost:3000"),
-    USE_MOCK_PROVIDERS: booleanFlag,
+    USE_MOCK_PROVIDERS: booleanFlag("true"),
 
-    // Supabase (Step 2)
+    // Supabase (database, auth, storage)
     NEXT_PUBLIC_SUPABASE_URL: optionalKey,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: optionalKey,
-    SUPABASE_SERVICE_ROLE_KEY: optionalKey,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: optionalKey,
+    SUPABASE_SECRET_KEY: optionalKey,
 
-    // AI (Step 4 onward)
+    // Local development only: sign in without Google. Ignored in production builds.
+    ENABLE_DEV_LOGIN: booleanFlag("false"),
+
+    // AI
     ANTHROPIC_API_KEY: optionalKey,
     ANTHROPIC_MODEL: z.string().default("claude-fable-5-2"),
 
-    // People and email data (Steps 6-7)
+    // People and email data
     APOLLO_API_KEY: optionalKey,
     HUNTER_API_KEY: optionalKey,
 
-    // Web research (Step 7)
+    // Web research
     RESEARCH_PROVIDER: z.enum(["tavily", "exa"]).default("tavily"),
     TAVILY_API_KEY: optionalKey,
     EXA_API_KEY: optionalKey,
 
-    // Gmail OAuth (Step 9)
+    // Gmail OAuth
     GOOGLE_CLIENT_ID: optionalKey,
     GOOGLE_CLIENT_SECRET: optionalKey,
     TOKEN_ENCRYPTION_KEY: optionalKey,
 
-    // Background jobs (Step 10)
+    // Background jobs
     INNGEST_EVENT_KEY: optionalKey,
     INNGEST_SIGNING_KEY: optionalKey,
 
-    // Sending limits (Step 9)
+    // Sending limits. The database enforces the same hard maximum of 40.
     DAILY_SEND_CAP_DEFAULT: z.coerce.number().int().min(1).max(40).default(20),
     DAILY_SEND_CAP_MAX: z.coerce.number().int().min(1).max(40).default(40),
   })
@@ -62,6 +70,9 @@ const envSchema = z
       "APOLLO_API_KEY",
       "HUNTER_API_KEY",
       env.RESEARCH_PROVIDER === "exa" ? "EXA_API_KEY" : "TAVILY_API_KEY",
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET",
+      "TOKEN_ENCRYPTION_KEY",
     ] as const;
 
     for (const key of required) {
@@ -95,4 +106,9 @@ let cached: Env | undefined;
 export function getEnv(): Env {
   cached ??= parseEnv(process.env);
   return cached;
+}
+
+/** Test helper: forget the cached environment. */
+export function resetEnvCache(): void {
+  cached = undefined;
 }

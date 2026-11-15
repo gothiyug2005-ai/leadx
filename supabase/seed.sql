@@ -1,0 +1,2 @@
+-- Local development seed. Intentionally empty: sign in with the dev login
+-- (see docs/SETUP.md) and the app creates everything it needs.
