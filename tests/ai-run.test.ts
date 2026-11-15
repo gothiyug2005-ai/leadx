@@ -18,7 +18,9 @@ const prompt = definePrompt<{ name: string }, { greeting: string }>({
 });
 
 function fakeClient(response: unknown) {
-  const parse = vi.fn<(request: unknown) => Promise<unknown>>(async () => response);
+  const parse = vi.fn<(request: unknown) => Promise<unknown>>(
+    async () => response,
+  );
   return {
     client: { beta: { messages: { parse } } } as unknown as Anthropic,
     parse,

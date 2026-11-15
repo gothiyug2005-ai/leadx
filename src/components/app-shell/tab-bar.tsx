@@ -8,7 +8,17 @@ import { cn } from "@/lib/utils";
 
 /** Bottom navigation for phones. */
 export function TabBar({ counts = {} }: { counts?: NavCounts }) {
-  const pathname = usePathname();
+  return <TabBarList pathname={usePathname()} counts={counts} />;
+}
+
+/** Renders without reading the URL; used as the loading fallback. */
+export function TabBarList({
+  pathname,
+  counts = {},
+}: {
+  pathname: string | null;
+  counts?: NavCounts;
+}) {
   const items = NAV_ITEMS.filter((item) => item.inTabBar);
 
   return (
@@ -18,7 +28,7 @@ export function TabBar({ counts = {} }: { counts?: NavCounts }) {
     >
       <ul className="grid grid-cols-5">
         {items.map((item) => {
-          const active = isActivePath(pathname, item.href);
+          const active = pathname ? isActivePath(pathname, item.href) : false;
           const count = item.badge ? counts[item.badge] : undefined;
           const Icon = item.icon;
           return (
