@@ -13,12 +13,15 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Vitest, Prettier, ESLint, CI workflow
 - [x] README and this file
 
-## Step 2: Database and auth
+## Step 2: Database and auth ✅
 
-- [ ] Schema proposal (review before migrations)
-- [ ] Migrations with Row Level Security on every table
-- [ ] Google sign-in
-- [ ] Protected routes
+- [x] Schema for profiles, companies, targets, people, research briefs, messages,
+      sequences, threads, suppressions, send log, API usage, Gmail tokens, provider cache
+- [x] Row Level Security on every table, plus a private resumes bucket
+- [x] Send gate in the database: approval, daily cap, opt-outs, risky addresses, sample data
+- [x] Google sign-in, sign-out, protected routes, local-only dev login
+- [x] Setup status page and docs/SETUP.md
+- [x] Database security tests
 
 ## Step 3: App shell
 

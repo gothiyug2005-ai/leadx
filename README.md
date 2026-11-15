@@ -18,8 +18,9 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Open http://localhost:3000. No API keys are needed: with `USE_MOCK_PROVIDERS=true` (the default)
-every people, email, and research provider returns deterministic fake data.
+Open http://localhost:3000. LeadX needs a Supabase project to sign in (see
+[docs/SETUP.md](./docs/SETUP.md)); every other service falls back to clearly labelled sample data
+until its key is set.
 
 ## Scripts
 
