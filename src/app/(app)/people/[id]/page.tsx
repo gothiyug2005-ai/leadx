@@ -6,6 +6,7 @@ import { Suspense } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { ContactCard } from "@/components/people/contact-card";
+import { HistoryCard } from "@/components/people/history-card";
 import { AngleChips } from "@/components/people/person-card";
 import { PersonMenu } from "@/components/people/person-menu";
 import { ResearchCard } from "@/components/people/research-card";
@@ -16,11 +17,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Composer } from "@/components/writer/composer";
 import { isAiSampleMode } from "@/lib/ai/client";
 import { requireUser } from "@/lib/auth";
+import { getGmailStatus } from "@/lib/data/gmail";
 import {
   getComposerDrafts,
   getPerson,
   getPersonResearch,
+  getSentMessages,
 } from "@/lib/data/people";
+import { getSendAllowance } from "@/lib/data/shell";
 import { readAngles } from "@/lib/discovery/view";
 import { ROLE_TYPE_LABELS, STAGE_LABELS, labelFor } from "@/lib/labels";
 import { contextSourceText } from "@/lib/writer/context";
@@ -45,9 +49,12 @@ async function Person({ params }: Pick<PageProps<"/people/[id]">, "params">) {
   if (!person) notFound();
 
   const angles = readAngles(person.connection_angles);
-  const [research, drafts] = await Promise.all([
+  const [research, drafts, sent, gmail, allowance] = await Promise.all([
     getPersonResearch(person.id, person.company_id),
     getComposerDrafts(person.id),
+    getSentMessages(person.id),
+    getGmailStatus(),
+    getSendAllowance(),
   ]);
   const writer = person.do_not_contact
     ? null
@@ -152,6 +159,8 @@ async function Person({ params }: Pick<PageProps<"/people/[id]">, "params">) {
             doNotContact={person.do_not_contact}
           />
 
+          <HistoryCard messages={sent} />
+
           <ResearchCard
             personId={person.id}
             company={research.company}
@@ -167,7 +176,17 @@ async function Person({ params }: Pick<PageProps<"/people/[id]">, "params">) {
               drafts={drafts}
               sourceText={contextSourceText(writer.context)}
               linkedinUrl={person.linkedin_url}
-              emailReady={emailReady}
+              sendInfo={{
+                toEmail: person.email,
+                emailReady,
+                gmailEmail:
+                  gmail?.connection?.status === "connected"
+                    ? gmail.connection.email
+                    : null,
+                isSamplePerson: person.is_sample,
+                remainingToday: allowance?.remaining ?? null,
+                dailyCap: allowance?.cap ?? null,
+              }}
               aiSample={isAiSampleMode()}
             />
           ) : (

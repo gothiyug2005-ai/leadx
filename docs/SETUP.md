@@ -89,7 +89,41 @@ To use Exa instead, set `RESEARCH_PROVIDER=exa` and `EXA_API_KEY`. Company
 research is shared by everyone you contact at that company and refreshed every
 14 days.
 
-## 7. Optional services
+## 7. Gmail (sending from your address)
+
+Without this, sends to sample people are simulated and real people cannot be
+emailed. Use the same Google Cloud project as sign-in (section 2).
+
+1. **Enable the API:** APIs & Services → Library → search "Gmail API" → Enable.
+2. **Consent screen:** APIs & Services → OAuth consent screen → Data access →
+   Add scopes: `https://www.googleapis.com/auth/gmail.send` and
+   `https://www.googleapis.com/auth/gmail.readonly`.
+3. **Test users:** while the app is in "Testing", add the Google accounts that
+   will use it (up to 100). Testing-mode tokens expire after 7 days, so users
+   reconnect Gmail weekly until the app is verified.
+4. **Redirect URI:** in your OAuth client (Credentials), add
+   `https://YOUR-APP/api/gmail/callback` and
+   `http://localhost:3000/api/gmail/callback`.
+5. **Environment variables:** `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from
+   that OAuth client, and an encryption key for stored tokens:
+   ```bash
+   openssl rand -base64 32   # paste the output into TOKEN_ENCRYPTION_KEY
+   ```
+   Keep this key safe and never change it once users have connected: tokens
+   encrypted with the old key cannot be read with a new one (users would simply
+   need to reconnect).
+6. Each user connects in **Settings → Gmail**.
+
+**Before a public launch:** `gmail.readonly` is a Google _restricted_ scope.
+Making the app public requires Google's OAuth verification and an annual
+third-party security assessment (CASA). Plan for this before opening sign-ups
+beyond your 100 test users.
+
+How sending works: nothing is sent until you press Send in the review window;
+the database checks your daily limit, your do-not-email list and the address
+first; and every send is logged in `send_events`.
+
+## 8. Optional services
 
 Each one replaces sample data with the real thing. Details are added to this
 guide as each feature is built.

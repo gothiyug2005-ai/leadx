@@ -9,7 +9,6 @@ import {
   Loader2,
   Minimize2,
   Pilcrow,
-  Send,
   Smile,
   Sparkles,
   Target,
@@ -31,11 +30,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
+import { SendDialog, type SendInfo } from "./send-dialog";
 import {
   generateDrafts,
   markCopied,
@@ -71,7 +67,7 @@ interface ComposerProps {
   /** The user's own material, so claims can be checked live while typing. */
   sourceText: string;
   linkedinUrl: string | null;
-  emailReady: boolean;
+  sendInfo: SendInfo;
   aiSample: boolean;
 }
 
@@ -534,20 +530,14 @@ export function Composer(props: ComposerProps) {
                   </span>
                 </>
               ) : (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span tabIndex={0}>
-                      <Button disabled>
-                        <Send aria-hidden /> Review and send
-                      </Button>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {props.emailReady
-                      ? "Sending from Gmail arrives in Step 9."
-                      : "Find or confirm an email address first."}
-                  </TooltipContent>
-                </Tooltip>
+                <SendDialog
+                  messageId={active.id}
+                  subject={current.subject}
+                  body={current.body}
+                  issues={quality?.issues ?? []}
+                  info={props.sendInfo}
+                  disabled={busy !== null}
+                />
               )}
               <Button
                 variant="ghost"
