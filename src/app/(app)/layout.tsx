@@ -6,8 +6,8 @@ import {
   TabBarWithCounts,
 } from "@/components/app-shell/nav-with-counts";
 import { SendMeter } from "@/components/app-shell/send-meter";
-import { SidebarNav } from "@/components/app-shell/sidebar-nav";
-import { TabBar } from "@/components/app-shell/tab-bar";
+import { SidebarNavList } from "@/components/app-shell/sidebar-nav";
+import { TabBarList } from "@/components/app-shell/tab-bar";
 import { Brand } from "@/components/brand";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserMenu } from "@/components/user-menu";
@@ -20,7 +20,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Link href="/today" className="px-3">
           <Brand />
         </Link>
-        <Suspense fallback={<SidebarNav />}>
+        <Suspense fallback={<SidebarNavList pathname={null} />}>
           <SidebarNavWithCounts />
         </Suspense>
         <div className="mt-auto flex flex-col gap-3">
@@ -51,7 +51,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
-      <Suspense fallback={<TabBar />}>
+      <Suspense fallback={<TabBarList pathname={null} />}>
         <TabBarWithCounts />
       </Suspense>
     </div>

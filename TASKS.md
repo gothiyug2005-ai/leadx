@@ -37,11 +37,12 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Tone picker and writing sample
 - [x] Settings page: resume, profile, story, tone, daily sending limit, connected services
 
-## Step 5: Targets
+## Step 5: Targets ✅
 
-- [ ] Create from job posting (AI extraction)
-- [ ] Create from company name or domain
-- [ ] Target list with progress
+- [x] Create from a job posting link (protected fetcher) or pasted text, with AI extraction and review
+- [x] Create from a company name and website, or from a specific person
+- [x] Target list with progress (found / contacted / replied), paused and archived section
+- [x] Target page with role details, edit, pause, archive and delete
 
 ## Step 6: People discovery
 

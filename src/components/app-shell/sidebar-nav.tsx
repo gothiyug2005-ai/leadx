@@ -7,12 +7,21 @@ import { NAV_ITEMS, isActivePath, type NavCounts } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 export function SidebarNav({ counts = {} }: { counts?: NavCounts }) {
-  const pathname = usePathname();
+  return <SidebarNavList pathname={usePathname()} counts={counts} />;
+}
 
+/** Renders without reading the URL; used as the loading fallback. */
+export function SidebarNavList({
+  pathname,
+  counts = {},
+}: {
+  pathname: string | null;
+  counts?: NavCounts;
+}) {
   return (
     <nav aria-label="Main" className="flex flex-col gap-0.5">
       {NAV_ITEMS.map((item) => {
-        const active = isActivePath(pathname, item.href);
+        const active = pathname ? isActivePath(pathname, item.href) : false;
         const count = item.badge ? counts[item.badge] : undefined;
         const Icon = item.icon;
         return (
