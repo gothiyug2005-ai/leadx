@@ -16,7 +16,18 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts", "src/**/*.test.ts"],
-    env: { TEST_DATABASE_URL: testDatabaseUrl },
+    env: {
+      TEST_DATABASE_URL: testDatabaseUrl,
+      // Server-side database tests (sequences, replies) talk to the same local stack.
+      ...(testDatabaseUrl
+        ? {
+            NEXT_PUBLIC_SUPABASE_URL: localEnv.NEXT_PUBLIC_SUPABASE_URL ?? "",
+            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
+              localEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
+            SUPABASE_SECRET_KEY: localEnv.SUPABASE_SECRET_KEY ?? "",
+          }
+        : {}),
+    },
     // Database tests share one database; run files one at a time.
     fileParallelism: false,
   },

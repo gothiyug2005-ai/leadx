@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowLeft, Ban, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowRight, Ban, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { ContactCard } from "@/components/people/contact-card";
 import { HistoryCard } from "@/components/people/history-card";
+import { SequenceCard } from "@/components/people/sequence-card";
 import { AngleChips } from "@/components/people/person-card";
 import { PersonMenu } from "@/components/people/person-menu";
 import { ResearchCard } from "@/components/people/research-card";
@@ -16,13 +17,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Composer } from "@/components/writer/composer";
 import { isAiSampleMode } from "@/lib/ai/client";
-import { requireUser } from "@/lib/auth";
+import { getProfile, requireUser } from "@/lib/auth";
 import { getGmailStatus } from "@/lib/data/gmail";
 import {
   getComposerDrafts,
   getPerson,
   getPersonResearch,
+  getPersonThread,
   getSentMessages,
+  getSequence,
 } from "@/lib/data/people";
 import { getSendAllowance } from "@/lib/data/shell";
 import { readAngles } from "@/lib/discovery/view";
@@ -55,6 +58,11 @@ async function Person({ params }: Pick<PageProps<"/people/[id]">, "params">) {
     getSentMessages(person.id),
     getGmailStatus(),
     getSendAllowance(),
+  ]);
+  const [sequence, thread, profile] = await Promise.all([
+    getSequence(person.id),
+    getPersonThread(person.id),
+    getProfile(),
   ]);
   const writer = person.do_not_contact
     ? null
@@ -158,6 +166,27 @@ async function Person({ params }: Pick<PageProps<"/people/[id]">, "params">) {
             error={person.enrichment_error}
             doNotContact={person.do_not_contact}
           />
+
+          {thread ? (
+            <Link
+              href={`/inbox/${thread.id}`}
+              className="bg-card hover:bg-accent/50 flex items-center justify-between gap-2 rounded-lg border px-4 py-3 text-sm"
+            >
+              <span>
+                {thread.needs_attention
+                  ? "They replied. Open the conversation"
+                  : "Open the conversation"}
+              </span>
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          ) : null}
+
+          {sequence ? (
+            <SequenceCard
+              sequence={sequence}
+              timeZone={profile?.timezone ?? "UTC"}
+            />
+          ) : null}
 
           <HistoryCard messages={sent} />
 

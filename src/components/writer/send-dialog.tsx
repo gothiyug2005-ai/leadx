@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,8 @@ export interface SendInfo {
 
 interface SendDialogProps {
   messageId: string;
+  /** First emails can schedule follow-ups. */
+  canFollowUp: boolean;
   subject: string;
   body: string;
   issues: QualityIssue[];
@@ -39,6 +42,7 @@ interface SendDialogProps {
 
 export function SendDialog({
   messageId,
+  canFollowUp,
   subject,
   body,
   issues,
@@ -46,6 +50,7 @@ export function SendDialog({
   disabled,
 }: SendDialogProps) {
   const [open, setOpen] = useState(false);
+  const [followUps, setFollowUps] = useState(true);
   const [pending, startTransition] = useTransition();
   const errors = issues.filter((issue) => issue.severity === "error");
   const warnings = issues.filter((issue) => issue.severity === "warning");
@@ -67,7 +72,11 @@ export function SendDialog({
 
   function send() {
     startTransition(async () => {
-      const result = await approveAndSend(messageId, { subject, body });
+      const result = await approveAndSend(messageId, {
+        subject,
+        body,
+        followUps: canFollowUp && followUps,
+      });
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -137,6 +146,26 @@ export function SendDialog({
             This is a sample person and Gmail is not connected, so LeadX will
             simulate the send. Nothing is emailed.
           </p>
+        ) : null}
+        {canFollowUp ? (
+          <label className="flex items-start gap-2 rounded-lg border p-3 text-sm">
+            <Checkbox
+              checked={followUps}
+              onCheckedChange={(value) => setFollowUps(value === true)}
+              className="mt-0.5"
+              aria-label="Follow up automatically"
+            />
+            <span className="flex flex-col gap-0.5">
+              <span className="font-medium">
+                Follow up automatically if there is no reply
+              </span>
+              <span className="text-muted-foreground text-xs">
+                Two short follow-ups on day 3 and day 7, on a weekday morning in
+                their time zone. Any reply stops them, and you can edit or
+                cancel them before they go.
+              </span>
+            </span>
+          </label>
         ) : null}
         {info.remainingToday !== null && !capReached ? (
           <p className="text-muted-foreground text-xs">

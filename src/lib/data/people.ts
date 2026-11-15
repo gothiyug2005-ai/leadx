@@ -78,3 +78,41 @@ export const getSentMessages = cache(async (personId: string) => {
     .limit(10);
   return data ?? [];
 });
+
+/** The person's newest sequence with its follow-ups, for the follow-ups card. */
+export const getSequence = cache(async (personId: string) => {
+  await requireUser();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("sequences")
+    .select(
+      "id, status, stop_reason, started_at, messages(id, sequence_step, subject, body, status, scheduled_at, sent_at, type)",
+    )
+    .eq("person_id", personId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    ...data,
+    followUps: (data.messages ?? [])
+      .filter((message) => message.type === "follow_up")
+      .sort((a, b) => a.sequence_step - b.sequence_step),
+  };
+});
+
+export type SequenceView = NonNullable<Awaited<ReturnType<typeof getSequence>>>;
+
+/** The conversation thread for a person, if any, for linking to the inbox. */
+export const getPersonThread = cache(async (personId: string) => {
+  await requireUser();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("threads")
+    .select("id, needs_attention, classification")
+    .eq("person_id", personId)
+    .order("last_message_at", { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+  return data;
+});
