@@ -179,8 +179,8 @@ async function Settings() {
           })}
         </ul>
         <p className="text-muted-foreground mt-4 text-xs">
-          Gmail is connected per account in a later step. Keys are added in your
-          hosting settings; see docs/SETUP.md.
+          Service keys are added in your hosting settings; see docs/SETUP.md.
+          Gmail is connected per account in the Gmail section above.
         </p>
       </Section>
     </div>

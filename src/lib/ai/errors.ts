@@ -5,7 +5,8 @@ export type AiErrorCode =
   | "rate_limited"
   | "unavailable"
   | "auth"
-  | "bad_request";
+  | "bad_request"
+  | "daily_limit";
 
 const MESSAGES: Record<AiErrorCode, string> = {
   refused: "The AI declined this request. Try rephrasing or editing the input.",
@@ -17,6 +18,8 @@ const MESSAGES: Record<AiErrorCode, string> = {
     "The AI service is temporarily unavailable. Please try again soon.",
   auth: "The AI is not set up correctly (check ANTHROPIC_API_KEY).",
   bad_request: "The AI could not process this input.",
+  daily_limit:
+    "You have used today's AI allowance. It frees up gradually over the next 24 hours.",
 };
 
 export class AiError extends Error {
