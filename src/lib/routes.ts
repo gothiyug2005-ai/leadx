@@ -7,6 +7,7 @@ export const PROTECTED_PREFIXES = [
   "/insights",
   "/settings",
   "/onboarding",
+  "/people",
 ] as const;
 
 export const DEFAULT_SIGNED_IN_PATH = "/today";

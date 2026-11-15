@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
+import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 
 interface PlaceholderPageProps {
@@ -12,19 +13,18 @@ interface PlaceholderPageProps {
 
 /** Temporary screen used until each feature's step is built. */
 export function PlaceholderPage({
-  icon: Icon,
+  icon,
   title,
   description,
   arrivesIn,
 }: PlaceholderPageProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-      <div className="bg-accent flex size-12 items-center justify-center rounded-full">
-        <Icon className="text-accent-foreground size-5" aria-hidden />
-      </div>
-      <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-      <p className="text-muted-foreground max-w-md">{description}</p>
-      <Badge variant="secondary">Coming in {arrivesIn}</Badge>
-    </div>
+    <EmptyState
+      size="page"
+      icon={icon}
+      title={title}
+      description={description}
+      action={<Badge variant="secondary">Coming in {arrivesIn}</Badge>}
+    />
   );
 }

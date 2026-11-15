@@ -23,11 +23,11 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Setup status page and docs/SETUP.md
 - [x] Database security tests
 
-## Step 3: App shell
+## Step 3: App shell ✅
 
-- [ ] Responsive navigation
-- [ ] Today page
-- [ ] Empty states
+- [x] Desktop sidebar and phone tab bar, with an Inbox badge and today's email allowance
+- [x] Today page: replies to handle, follow-ups due, who to contact, in the user's timezone
+- [x] First-run checklist, empty states, loading skeletons, error and not-found screens
 
 ## Step 4: Onboarding
 
