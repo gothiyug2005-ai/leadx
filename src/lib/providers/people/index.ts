@@ -2,13 +2,15 @@ import "server-only";
 
 import { getEnv } from "@/lib/env";
 
+import { ApolloPeopleProvider } from "./apollo";
 import { MockPeopleProvider } from "./mock";
 import type { PeopleProvider } from "./types";
 
 export * from "./types";
 
-/** Real adapters (Apollo first) are registered here in Step 6. */
+/** Apollo when a key is set; otherwise clearly labelled sample people. */
 export function getPeopleProvider(): PeopleProvider {
-  if (getEnv().USE_MOCK_PROVIDERS) return new MockPeopleProvider();
-  throw new Error("No real people provider is implemented yet (Step 6)");
+  const { APOLLO_API_KEY } = getEnv();
+  if (APOLLO_API_KEY) return new ApolloPeopleProvider(APOLLO_API_KEY);
+  return new MockPeopleProvider();
 }

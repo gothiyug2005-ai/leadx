@@ -44,12 +44,13 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Target list with progress (found / contacted / replied), paused and archived section
 - [x] Target page with role details, edit, pause, archive and delete
 
-## Step 6: People discovery
+## Step 6: People discovery ✅
 
-- [ ] Apollo adapter behind the people provider interface
-- [ ] AI ranking with one-line reasons
-- [ ] Connection angles
-- [ ] Manual add
+- [x] Apollo People Search adapter behind the people provider interface, with a shared 7-day cache
+- [x] Search titles picked from the role (manager, peers, recruiters, leadership)
+- [x] AI ranking with role type, 0-100 score and a one-line reason; 3-5 top picks
+- [x] Connection angles (shared school, past company, city, skills), detected by rules plus AI
+- [x] Manual add, top-pick toggle, "never email again", remove; person page
 
 ## Step 7: Enrichment
 
