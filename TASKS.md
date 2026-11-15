@@ -77,13 +77,17 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Send log (send_events), sent history on the person page, person moves to "Contacted"
 - [x] Settings: connect, reconnect, disconnect (token revoked)
 
-## Step 10: Sequences and replies
+## Step 10: Sequences and replies ✅
 
-- [ ] Follow-ups on day 3 and day 7, stopping on reply
-- [ ] Smart send time and randomised spacing
-- [ ] Reply sync and inbox view
-- [ ] AI reply classification and suggested responses
-- [ ] Opt-out and "never email again", with tests
+- [x] Optional follow-ups on day 3 and day 7, written at send time, editable and cancellable, stopped by any reply
+- [x] Smart send time: weekday 09:00-11:30 in the recipient's time zone, random minute; sends spaced a few minutes apart
+- [x] Daily cap hit by a follow-up defers it to the next morning instead of dropping it
+- [x] Inngest jobs (send due every 5 min, sync replies every 10 min) and a CRON_SECRET-protected /api/cron/run
+- [x] Gmail reply sync via the history API; bounces and out-of-office replies recognised
+- [x] AI reply classification (interested, referral offered, not now, not relevant, opt-out) and suggested replies
+- [x] Inbox and conversation view; reply in the same thread; mark handled; "got an interview"
+- [x] Opt-outs and bounces suppress the address everywhere; covered by database tests
+- [x] Sample people: simulated replies to try the whole flow
 
 ## Step 11: Pipeline and insights
 

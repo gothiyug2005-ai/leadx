@@ -172,16 +172,14 @@ export async function handleInbound(
         );
     }
     if (thread.person.email && thread.person.email.toLowerCase() !== address) {
-      await service
-        .from("suppressions")
-        .upsert(
-          {
-            user_id: input.userId,
-            email: thread.person.email.toLowerCase(),
-            reason: "opt_out",
-          },
-          { onConflict: "user_id,email", ignoreDuplicates: true },
-        );
+      await service.from("suppressions").upsert(
+        {
+          user_id: input.userId,
+          email: thread.person.email.toLowerCase(),
+          reason: "opt_out",
+        },
+        { onConflict: "user_id,email", ignoreDuplicates: true },
+      );
     }
     await service
       .from("people")

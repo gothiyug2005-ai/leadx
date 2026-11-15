@@ -139,6 +139,8 @@ async function Thread({ params }: Pick<PageProps<"/inbox/[id]">, "params">) {
       </ol>
 
       <ReplyPanel
+        // Re-create the panel when a new suggestion arrives, so it is prefilled.
+        key={thread.suggested_reply ?? "none"}
         threadId={thread.id}
         personId={thread.person.id}
         personFirstName={
