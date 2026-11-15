@@ -47,7 +47,9 @@ describe.skipIf(!hasDatabase)("send gate (claim_send_slot)", () => {
         allowed: false,
         reason: "not_queued",
       });
-      expect(await tx`select id from public.send_events`).toHaveLength(0);
+      expect(
+        await tx`select id from public.send_events where user_id = ${fixture.userId}`,
+      ).toHaveLength(0);
     });
   });
 

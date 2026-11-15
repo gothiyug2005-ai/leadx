@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 
+import { GmailCard, GmailResultToast } from "@/components/profile/gmail-card";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { SampleNotice } from "@/components/profile/sample-notice";
 import { SendingLimitForm } from "@/components/profile/sending-limit-form";
@@ -20,6 +21,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { isAiSampleMode } from "@/lib/ai/client";
 import { getProfile, requireUser } from "@/lib/auth";
+import { getGmailStatus } from "@/lib/data/gmail";
 import { toProfileView } from "@/lib/data/profile";
 import { getSetupStatus } from "@/lib/setup-status";
 
@@ -70,9 +72,13 @@ async function Settings() {
   const view = toProfileView(profile);
   const services = getSetupStatus().filter((group) => group.id !== "supabase");
   const aiSample = isAiSampleMode();
+  const gmail = await getGmailStatus();
 
   return (
     <div className="flex flex-col gap-6">
+      <Suspense>
+        <GmailResultToast />
+      </Suspense>
       {!profile.onboarding_completed_at ? (
         <Card className="flex-row items-center justify-between gap-4 px-6">
           <p className="text-sm">
@@ -125,6 +131,17 @@ async function Settings() {
         description="How your messages should sound."
       >
         <ToneForm initialTone={view.tone} initialSample={view.writingSample} />
+      </Section>
+
+      <Section
+        id="gmail"
+        title="Gmail"
+        description="Send from your own address. Every email is reviewed by you before it goes out."
+      >
+        <GmailCard
+          configured={gmail?.configured ?? false}
+          connection={gmail?.connection ?? null}
+        />
       </Section>
 
       <Section

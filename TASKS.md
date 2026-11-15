@@ -68,12 +68,14 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Live quality checker: length, subject, generic phrases, one ask, opt-out, placeholders, numbers not in your profile
 - [x] Split-view composer on the person page; LinkedIn is copy-to-clipboard only
 
-## Step 9: Gmail sending
+## Step 9: Gmail sending ✅
 
-- [ ] Gmail OAuth with encrypted tokens
-- [ ] Send from the user's address after review
-- [ ] Daily cap enforced on the server, with tests
-- [ ] Send logging
+- [x] Separate Gmail consent (send + read) with state check; tokens AES-256-GCM encrypted at rest, refreshed automatically
+- [x] Review-and-send dialog: nothing is sent without the user pressing Send; blocking quality issues stop it
+- [x] Send through the database send gate (daily cap, suppressions, do-not-contact, verified address, sample data)
+- [x] Gmail provider (RFC 5322, header-injection safe, threading headers) and a simulated provider for sample people
+- [x] Send log (send_events), sent history on the person page, person moves to "Contacted"
+- [x] Settings: connect, reconnect, disconnect (token revoked)
 
 ## Step 10: Sequences and replies
 

@@ -64,3 +64,17 @@ export const getComposerDrafts = cache(async (personId: string) => {
     )
     .reverse();
 });
+
+/** Messages already sent to this person, newest first, for the history card. */
+export const getSentMessages = cache(async (personId: string) => {
+  await requireUser();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("messages")
+    .select("id, type, subject, body, sent_at, gmail_message_id, status, error")
+    .eq("person_id", personId)
+    .in("status", ["sent", "failed"])
+    .order("created_at", { ascending: false })
+    .limit(10);
+  return data ?? [];
+});
