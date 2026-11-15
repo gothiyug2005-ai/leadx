@@ -40,7 +40,21 @@ Variables), and into `.env.local` on your own computer if you run it locally.
 
 The same Google client is reused for Gmail sending in a later step.
 
-## 3. Optional services
+## 3. Anthropic (AI)
+
+Without a key, every AI feature returns clearly labelled sample output.
+
+1. Go to https://console.anthropic.com, sign up, and add a payment method
+   under **Billing** (the API is pay-as-you-go).
+2. Open **API Keys → Create Key**, name it `leadx`, and copy it.
+3. Add it as `ANTHROPIC_API_KEY`. `ANTHROPIC_MODEL` defaults to
+   `claude-opus-5-5`; leave it unless you want a different model.
+4. Optional but sensible: set a monthly spend limit under **Limits**.
+
+Every AI call is recorded per user in the `api_usage` table, so you can see
+what each person costs.
+
+## 4. Optional services
 
 Each one replaces sample data with the real thing. Details are added to this
 guide as each feature is built.

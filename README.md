@@ -64,8 +64,10 @@ tests/                  Unit tests
 
 - Provider calls are server-side only, behind interfaces in `src/lib/providers/*`, so vendors are
   swappable. Each interface ships with a mock adapter.
-- AI prompts live in `src/lib/ai/prompts/*` as versioned functions. AI output is validated with
-  Zod before use.
+- AI prompts live in `src/lib/ai/prompts/*` as versioned definitions, and every call goes through
+  `runPrompt` (`src/lib/ai/run.ts`): schema-constrained output validated with Zod, friendly errors,
+  a server-side fallback model if a request is declined, and usage recorded per user. Without an
+  API key each prompt returns its own labelled sample output.
 - Research briefs and enrichment results are cached to save API credits.
 - API usage is recorded per user, ready for credits and billing later.
 - OAuth tokens are encrypted at rest.
