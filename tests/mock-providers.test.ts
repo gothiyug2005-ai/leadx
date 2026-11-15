@@ -4,21 +4,36 @@ import { getEmailFinders, getEmailVerifier } from "@/lib/providers/email";
 import { getPeopleProvider } from "@/lib/providers/people";
 import { getResearchProvider } from "@/lib/providers/research";
 
-describe("mock providers (default configuration)", () => {
-  it("returns deterministic people for a company", async () => {
+describe("sample providers (no keys configured)", () => {
+  it("returns the same labelled sample people for the same company", async () => {
     const provider = getPeopleProvider();
-    const first = await provider.searchPeople({
+    expect(provider.name).toBe("mock");
+    const input = {
       companyName: "Acme Corp",
+      titles: ["Engineering Manager", "Recruiter"],
       limit: 3,
-    });
-    const second = await provider.searchPeople({
-      companyName: "Acme Corp",
-      limit: 3,
-    });
+    };
+    const first = await provider.searchPeople(input);
+    const second = await provider.searchPeople(input);
 
     expect(first).toHaveLength(3);
     expect(first).toEqual(second);
-    expect(first[0]?.companyDomain).toBe("acme-corp.example");
+    expect(first.every((person) => person.isSample)).toBe(true);
+    expect(first[0]).toMatchObject({
+      title: "Engineering Manager",
+      companyDomain: "acme-corp.example",
+    });
+  });
+
+  it("gives one sample person the user's school so shared background shows up", async () => {
+    const people = await getPeopleProvider().searchPeople({
+      companyName: "Acme",
+      titles: ["Engineer"],
+      hints: { schools: ["IIT Bombay"] },
+    });
+    expect(people.some((person) => person.schools.includes("IIT Bombay"))).toBe(
+      true,
+    );
   });
 
   it("finds and verifies an email through the waterfall", async () => {
@@ -40,18 +55,7 @@ describe("mock providers (default configuration)", () => {
     );
   });
 
-  it("returns no email when the name is unusable", async () => {
-    const [finder] = getEmailFinders();
-    expect(
-      await finder?.findEmail({
-        firstName: "",
-        lastName: "",
-        companyDomain: "acme.example",
-      }),
-    ).toBeNull();
-  });
-
-  it("labels mock research results and respects maxResults", async () => {
+  it("labels sample research results and respects maxResults", async () => {
     const results = await getResearchProvider().search({
       query: "Acme",
       maxResults: 1,

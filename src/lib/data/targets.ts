@@ -62,7 +62,7 @@ export const getTarget = cache(async (id: string) => {
   const { data } = await supabase
     .from("targets")
     .select(
-      `${TARGET_FIELDS}, people(id, full_name, title, role_type, relevance_reason, is_recommended, stage, email, email_status, linkedin_url, source, is_sample)`,
+      `${TARGET_FIELDS}, discovery_error, people(id, full_name, title, location, role_type, relevance_score, relevance_reason, connection_angles, is_recommended, do_not_contact, stage, email, email_status, linkedin_url, source, is_sample, created_at)`,
     )
     .eq("id", id)
     .maybeSingle();

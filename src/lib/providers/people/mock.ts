@@ -4,22 +4,36 @@ import type {
   PersonCandidate,
 } from "./types";
 
-const SAMPLE_PEOPLE = [
-  { firstName: "Priya", lastName: "Raman", title: "Engineering Manager" },
-  {
-    firstName: "Daniel",
-    lastName: "Okafor",
-    title: "Senior Technical Recruiter",
-  },
-  { firstName: "Mei", lastName: "Tanaka", title: "Senior Software Engineer" },
-  { firstName: "Lucas", lastName: "Ferreira", title: "VP of Engineering" },
-  { firstName: "Sara", lastName: "Lindqvist", title: "Product Manager" },
-  {
-    firstName: "Omar",
-    lastName: "Haddad",
-    title: "Talent Acquisition Partner",
-  },
-] as const;
+const FIRST = [
+  "Priya",
+  "Daniel",
+  "Mei",
+  "Lucas",
+  "Sara",
+  "Omar",
+  "Ananya",
+  "Tom",
+  "Leila",
+  "Ravi",
+  "Hannah",
+  "Kenji",
+];
+const LAST = [
+  "Raman",
+  "Okafor",
+  "Tanaka",
+  "Ferreira",
+  "Lindqvist",
+  "Haddad",
+  "Iyer",
+  "Becker",
+  "Nasser",
+  "Menon",
+  "Clarke",
+  "Sato",
+];
+const SCHOOLS = ["State University", "Institute of Technology", "City College"];
+const COMPANIES = ["Globex", "Initech", "Umbrella Labs", "Hooli"];
 
 function slug(value: string): string {
   return value
@@ -28,24 +42,60 @@ function slug(value: string): string {
     .replace(/^-|-$/g, "");
 }
 
-/** Deterministic fake people so the product is usable without provider keys. */
+/** Small deterministic hash so the same company always gets the same sample people. */
+function seed(value: string): number {
+  let hash = 0;
+  for (const char of value) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return hash;
+}
+
+/**
+ * Deterministic sample people, clearly marked as samples. Titles follow the
+ * search so the ranking has something realistic to work with, and one person
+ * shares the user's school so connection angles can be seen working.
+ */
 export class MockPeopleProvider implements PeopleProvider {
   readonly name = "mock";
 
   async searchPeople(input: PeopleSearchInput): Promise<PersonCandidate[]> {
     const domain = input.companyDomain ?? `${slug(input.companyName)}.example`;
-    const limit = input.limit ?? SAMPLE_PEOPLE.length;
+    const base = seed(input.companyName.toLowerCase());
+    const titles = input.titles.length
+      ? input.titles
+      : ["Engineering Manager", "Recruiter", "Software Engineer"];
+    const count = Math.min(input.limit ?? 8, 8);
+    const userSchool = input.hints?.schools?.[0];
+    const userCompany = input.hints?.companies?.[0];
 
-    return SAMPLE_PEOPLE.slice(0, limit).map((person) => ({
-      providerId: `mock-${slug(input.companyName)}-${slug(person.firstName)}-${slug(person.lastName)}`,
-      provider: this.name,
-      fullName: `${person.firstName} ${person.lastName}`,
-      firstName: person.firstName,
-      lastName: person.lastName,
-      title: person.title,
-      companyName: input.companyName,
-      companyDomain: domain,
-      location: "Remote",
-    }));
+    return Array.from({ length: count }, (_, index) => {
+      const firstName = FIRST[(base + index) % FIRST.length] ?? "Alex";
+      const lastName = LAST[(base + index * 7) % LAST.length] ?? "Lee";
+      const title = titles[index % titles.length] ?? "Software Engineer";
+      return {
+        providerId: `mock-${slug(input.companyName)}-${index}`,
+        provider: this.name,
+        firstName,
+        lastName,
+        lastNameIsPartial: false,
+        title,
+        companyName: input.companyName,
+        companyDomain: domain,
+        location:
+          index % 3 === 0 && input.hints?.location
+            ? input.hints.location
+            : "Remote",
+        linkedinUrl: null,
+        schools:
+          index === 2 && userSchool
+            ? [userSchool]
+            : [SCHOOLS[(base + index) % SCHOOLS.length] ?? "City College"],
+        pastCompanies:
+          index === 4 && userCompany
+            ? [userCompany]
+            : [COMPANIES[(base + index) % COMPANIES.length] ?? "Globex"],
+        hasEmail: true,
+        isSample: true,
+      };
+    });
   }
 }

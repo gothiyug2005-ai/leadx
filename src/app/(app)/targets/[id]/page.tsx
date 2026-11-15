@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {
   ArrowLeft,
+  CircleAlert,
   ExternalLink,
   Globe,
   MapPin,
@@ -11,13 +12,17 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { EmptyState } from "@/components/empty-state";
+import { AddPersonDialog } from "@/components/people/add-person-dialog";
+import { FindPeopleButton } from "@/components/people/find-people-button";
+import { PersonCard } from "@/components/people/person-card";
 import { TargetActions } from "@/components/targets/target-actions";
 import { targetTitle } from "@/components/targets/target-card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getTarget, type TargetDetail } from "@/lib/data/targets";
-import { ROLE_TYPE_LABELS, STAGE_LABELS, labelFor } from "@/lib/labels";
+import { sortPeople } from "@/lib/discovery/view";
 
 export const metadata: Metadata = { title: "Target" };
 
@@ -188,60 +193,79 @@ function TargetDetails({ target }: { target: TargetDetail }) {
 }
 
 function People({ target }: { target: TargetDetail }) {
+  const people = sortPeople(target.people);
+  const recommended = people.filter(
+    (person) => person.is_recommended && !person.do_not_contact,
+  );
+  const others = people.filter((person) => !recommended.includes(person));
+  const hasPeople = people.length > 0;
+  const isPersonTarget = target.kind === "person";
+
   return (
-    <section className="flex flex-col gap-3" aria-label="People">
-      <h2 className="text-base font-semibold tracking-tight">People</h2>
-      {target.people.length === 0 ? (
+    <section className="flex flex-col gap-4" aria-label="People">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-base font-semibold tracking-tight">People</h2>
+          <p className="text-muted-foreground text-sm">
+            {hasPeople
+              ? "Ranked by how likely they are to help with this role."
+              : "Find the hiring manager, recruiters and teammates, ranked by who is most likely to help."}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <AddPersonDialog targetId={target.id} />
+          {!isPersonTarget ? (
+            <FindPeopleButton targetId={target.id} hasPeople={hasPeople} />
+          ) : null}
+        </div>
+      </div>
+
+      {target.discovery_status === "failed" && target.discovery_error ? (
+        <Alert variant="destructive">
+          <CircleAlert aria-hidden />
+          <AlertDescription>{target.discovery_error}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {!hasPeople ? (
         <EmptyState
           icon={UserRoundSearch}
           title="No people yet"
-          description="Soon LeadX will find the hiring manager, recruiters and teammates here, ranked by who is most likely to help."
-          action={<Badge variant="secondary">Coming in Step 6</Badge>}
+          description={
+            target.company?.domain
+              ? "Click Find people to search this company. You can also add someone you already know."
+              : "Click Find people to search this company. Adding the company website (Edit) gives better results."
+          }
         />
       ) : (
-        <ul className="flex flex-col gap-2">
-          {target.people.map((person) => (
-            <li
-              key={person.id}
-              className="bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-medium">{person.full_name}</span>
-                {person.role_type ? (
-                  <Badge variant="secondary">
-                    {labelFor(ROLE_TYPE_LABELS, person.role_type)}
-                  </Badge>
-                ) : null}
-                <Badge variant="outline">
-                  {labelFor(STAGE_LABELS, person.stage)}
-                </Badge>
-                {person.is_sample ? (
-                  <Badge variant="outline">Sample</Badge>
-                ) : null}
-              </div>
-              {person.title ? (
-                <span className="text-muted-foreground text-sm">
-                  {person.title}
-                </span>
+        <>
+          {recommended.length ? (
+            <div className="flex flex-col gap-2">
+              <h3 className="text-sm font-medium">
+                Start with these {recommended.length}
+              </h3>
+              <ul className="flex flex-col gap-2">
+                {recommended.map((person) => (
+                  <PersonCard key={person.id} person={person} />
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {others.length ? (
+            <div className="flex flex-col gap-2">
+              {recommended.length ? (
+                <h3 className="text-muted-foreground text-sm font-medium">
+                  Everyone else
+                </h3>
               ) : null}
-              {person.relevance_reason ? (
-                <span className="text-muted-foreground text-sm">
-                  {person.relevance_reason}
-                </span>
-              ) : null}
-              {person.linkedin_url ? (
-                <a
-                  href={person.linkedin_url}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  className="text-primary flex items-center gap-1 self-start text-sm hover:underline"
-                >
-                  Profile <ExternalLink className="size-3" aria-hidden />
-                </a>
-              ) : null}
-            </li>
-          ))}
-        </ul>
+              <ul className="flex flex-col gap-2">
+                {others.map((person) => (
+                  <PersonCard key={person.id} person={person} />
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </>
       )}
     </section>
   );

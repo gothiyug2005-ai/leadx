@@ -54,7 +54,20 @@ Without a key, every AI feature returns clearly labelled sample output.
 Every AI call is recorded per user in the `api_usage` table, so you can see
 what each person costs.
 
-## 4. Optional services
+## 4. Apollo (finding people)
+
+Without a key, LeadX shows clearly labelled sample people.
+
+1. Sign up at https://www.apollo.io and open **Settings → Integrations → API**.
+2. Create an API key and switch on **Set as master key**: Apollo's People
+   Search only accepts master keys.
+3. Add it as `APOLLO_API_KEY`.
+
+People Search itself uses no Apollo credits. It returns names with part of the
+surname hidden and no email; LeadX fills those in during enrichment (next
+step). Results are cached for 7 days to stay well within Apollo's hourly limit.
+
+## 5. Optional services
 
 Each one replaces sample data with the real thing. Details are added to this
 guide as each feature is built.
