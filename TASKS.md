@@ -89,11 +89,12 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Opt-outs and bounces suppress the address everywhere; covered by database tests
 - [x] Sample people: simulated replies to try the whole flow
 
-## Step 11: Pipeline and insights
+## Step 11: Pipeline and insights ✅
 
-- [ ] Kanban board per person
-- [ ] Dashboard
-- [ ] CSV export
+- [x] Pipeline board: To contact → Contacted → Followed up → Replied → Interview → Offer/Closed; drag or "Move to" menu, optimistic with undo on error; search and target filter
+- [x] Insights: emails sent, reply rate (per person contacted), interviews, offers; weekly sends vs replies (8 weeks, user's time zone) with table view; funnel; reply rate by first-email angle and by contact type
+- [x] Chart colours validated for colour-blind separation and contrast in light and dark
+- [x] CSV export of everyone found, safe against spreadsheet formula injection
 
 ## Step 12: Polish and launch
 
