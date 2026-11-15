@@ -60,12 +60,13 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Provider results cached (failed lookups never cached); every call recorded in api_usage
 - [x] Contact card, research card, "Find emails for top picks"
 
-## Step 8: AI writer
+## Step 8: AI writer ✅
 
-- [ ] Three variants with different angles
-- [ ] Message types: cold email, referral request, LinkedIn note, LinkedIn DM, follow-up
-- [ ] Inline edits
-- [ ] Quality checker and length rules
+- [x] Three drafts with different angles (shared background, skills match, company news, team curiosity), only angles the data supports
+- [x] Message types: cold email, referral request, LinkedIn note (300 chars), LinkedIn message, follow-up
+- [x] Quick edits: shorten, warmer, more specific, rewrite one paragraph
+- [x] Live quality checker: length, subject, generic phrases, one ask, opt-out, placeholders, numbers not in your profile
+- [x] Split-view composer on the person page; LinkedIn is copy-to-clipboard only
 
 ## Step 9: Gmail sending
 

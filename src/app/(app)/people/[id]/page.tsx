@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowLeft, ExternalLink, PenLine } from "lucide-react";
+import { ArrowLeft, Ban, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -13,29 +13,53 @@ import { targetTitle } from "@/components/targets/target-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getPerson, getPersonResearch } from "@/lib/data/people";
+import { Composer } from "@/components/writer/composer";
+import { isAiSampleMode } from "@/lib/ai/client";
+import { requireUser } from "@/lib/auth";
+import {
+  getComposerDrafts,
+  getPerson,
+  getPersonResearch,
+} from "@/lib/data/people";
 import { readAngles } from "@/lib/discovery/view";
 import { ROLE_TYPE_LABELS, STAGE_LABELS, labelFor } from "@/lib/labels";
+import { contextSourceText } from "@/lib/writer/context";
+import { loadWriterContext } from "@/lib/writer/load";
 
 export const metadata: Metadata = { title: "Person" };
 
 export default function PersonPage({ params }: PageProps<"/people/[id]">) {
   return (
-    <Suspense fallback={<PersonSkeleton />}>
-      <Person params={params} />
-    </Suspense>
+    <div data-wide className="flex flex-col gap-6">
+      <Suspense fallback={<PersonSkeleton />}>
+        <Person params={params} />
+      </Suspense>
+    </div>
   );
 }
 
 async function Person({ params }: Pick<PageProps<"/people/[id]">, "params">) {
   const { id } = await params;
+  const user = await requireUser();
   const person = await getPerson(id);
   if (!person) notFound();
+
   const angles = readAngles(person.connection_angles);
-  const research = await getPersonResearch(person.id, person.company_id);
+  const [research, drafts] = await Promise.all([
+    getPersonResearch(person.id, person.company_id),
+    getComposerDrafts(person.id),
+  ]);
+  const writer = person.do_not_contact
+    ? null
+    : await loadWriterContext(user.id, person.id, "cold_email");
+  const emailReady =
+    Boolean(person.email) &&
+    (person.email_status === "valid" ||
+      (["risky", "unknown"].includes(person.email_status) &&
+        Boolean(person.email_risk_accepted_at)));
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
       {person.target ? (
         <Link
           href={`/targets/${person.target.id}`}
@@ -80,65 +104,82 @@ async function Person({ params }: Pick<PageProps<"/people/[id]">, "params">) {
         />
       </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Why reach out</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3 text-sm">
-          {person.relevance_reason ? (
-            <p>{person.relevance_reason}</p>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Why reach out</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3 text-sm">
+              {person.relevance_reason ? (
+                <p>{person.relevance_reason}</p>
+              ) : (
+                <p className="text-muted-foreground">No notes yet.</p>
+              )}
+              <AngleChips angles={angles} />
+              {person.location ? (
+                <p>
+                  <span className="text-muted-foreground">Location: </span>
+                  {person.location}
+                </p>
+              ) : null}
+              {person.notes ? (
+                <p className="text-muted-foreground whitespace-pre-line">
+                  {person.notes}
+                </p>
+              ) : null}
+              {person.linkedin_url ? (
+                <a
+                  href={person.linkedin_url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="text-primary flex items-center gap-1 self-start hover:underline"
+                >
+                  Profile <ExternalLink className="size-3.5" aria-hidden />
+                </a>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <ContactCard
+            personId={person.id}
+            email={person.email}
+            status={person.email_status}
+            source={person.email_source}
+            confidence={person.email_confidence}
+            riskAccepted={Boolean(person.email_risk_accepted_at)}
+            error={person.enrichment_error}
+            doNotContact={person.do_not_contact}
+          />
+
+          <ResearchCard
+            personId={person.id}
+            company={research.company}
+            person={research.person}
+          />
+        </div>
+
+        <div className="flex flex-col gap-6 lg:sticky lg:top-6">
+          {writer ? (
+            <Composer
+              personId={person.id}
+              recipientFirstName={writer.context.recipient.firstName}
+              drafts={drafts}
+              sourceText={contextSourceText(writer.context)}
+              linkedinUrl={person.linkedin_url}
+              emailReady={emailReady}
+              aiSample={isAiSampleMode()}
+            />
           ) : (
-            <p className="text-muted-foreground">No notes yet.</p>
+            <EmptyState
+              icon={Ban}
+              title="Not contacting this person"
+              description="You asked LeadX never to email them again, so there is nothing to write."
+            />
           )}
-          <AngleChips angles={angles} />
-          {person.location ? (
-            <p>
-              <span className="text-muted-foreground">Location: </span>
-              {person.location}
-            </p>
-          ) : null}
-          {person.notes ? (
-            <p className="text-muted-foreground whitespace-pre-line">
-              {person.notes}
-            </p>
-          ) : null}
-          {person.linkedin_url ? (
-            <a
-              href={person.linkedin_url}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              className="text-primary flex items-center gap-1 self-start hover:underline"
-            >
-              Profile <ExternalLink className="size-3.5" aria-hidden />
-            </a>
-          ) : null}
-        </CardContent>
-      </Card>
-
-      <ContactCard
-        personId={person.id}
-        email={person.email}
-        status={person.email_status}
-        source={person.email_source}
-        confidence={person.email_confidence}
-        riskAccepted={Boolean(person.email_risk_accepted_at)}
-        error={person.enrichment_error}
-        doNotContact={person.do_not_contact}
-      />
-
-      <ResearchCard
-        personId={person.id}
-        company={research.company}
-        person={research.person}
-      />
-
-      <EmptyState
-        icon={PenLine}
-        title="Message writer coming in Step 8"
-        description="Next, LeadX will use this research to draft three personal messages for you to choose from."
-        action={<Badge variant="secondary">Coming in Step 8</Badge>}
-      />
-    </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -146,7 +187,10 @@ function PersonSkeleton() {
   return (
     <div className="flex flex-col gap-6" aria-busy aria-label="Loading person">
       <Skeleton className="h-8 w-64" />
-      <Skeleton className="h-40 w-full" />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-96 w-full" />
+      </div>
     </div>
   );
 }

@@ -37,3 +37,30 @@ export const getPersonResearch = cache(
     };
   },
 );
+
+/** The person's current set of drafts (the newest group), for the composer. */
+export const getComposerDrafts = cache(async (personId: string) => {
+  await requireUser();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("messages")
+    .select(
+      "id, type, channel, angle, subject, body, status, is_selected, quality, is_sample, variant_group, created_at",
+    )
+    .eq("person_id", personId)
+    .in("status", ["draft", "copied"])
+    .not("variant_group", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(40);
+  // Keep the newest set of drafts for each message type.
+  const newestGroup = new Map<string, string | null>();
+  for (const message of data ?? []) {
+    if (!newestGroup.has(message.type))
+      newestGroup.set(message.type, message.variant_group);
+  }
+  return (data ?? [])
+    .filter(
+      (message) => newestGroup.get(message.type) === message.variant_group,
+    )
+    .reverse();
+});

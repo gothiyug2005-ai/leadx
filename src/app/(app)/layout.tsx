@@ -46,7 +46,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       <main className="flex min-w-0 flex-1 flex-col pb-20 md:pb-0">
-        <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 py-6 sm:px-6 md:py-10">
+        <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 py-6 has-[[data-wide]]:max-w-6xl sm:px-6 md:py-10">
           {children}
         </div>
       </main>
