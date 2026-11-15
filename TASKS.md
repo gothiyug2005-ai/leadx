@@ -29,11 +29,13 @@ Each step ships as its own branch and pull request, reviewed before the next one
 - [x] Today page: replies to handle, follow-ups due, who to contact, in the user's timezone
 - [x] First-run checklist, empty states, loading skeletons, error and not-found screens
 
-## Step 4: Onboarding
+## Step 4: Onboarding ✅
 
-- [ ] Resume upload and AI parsing into an editable profile
-- [ ] "Your story" helper and positioning statement
-- [ ] Tone picker and writing sample
+- [x] Shared AI runner: schema-checked output, refusal and error handling, fallback model, usage tracking, sample mode
+- [x] Resume upload (private storage) and AI parsing into an editable profile
+- [x] "Your story" helper: 3-4 questions, then a 2-line positioning statement with alternatives
+- [x] Tone picker and writing sample
+- [x] Settings page: resume, profile, story, tone, daily sending limit, connected services
 
 ## Step 5: Targets
 

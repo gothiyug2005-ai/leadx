@@ -38,7 +38,7 @@ const envSchema = z
 
     // AI
     ANTHROPIC_API_KEY: optionalKey,
-    ANTHROPIC_MODEL: z.string().default("claude-fable-5-2"),
+    ANTHROPIC_MODEL: z.string().default("claude-opus-5-5"),
 
     // People and email data
     APOLLO_API_KEY: optionalKey,
